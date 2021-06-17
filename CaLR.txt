@@ -1,0 +1,113 @@
+//Nome: Calculadora de Lucro Futuro Real - CaLR (beta)
+//Autor: Diego Mousine
+
+/* ============== INICIO DOS CALCULOS DE IMPOSTOS NA ENTRADA DO PRODUTO ==============*/
+var valorDoProduto:Number = 0;
+var e_precoReal:Number = 0;
+//Calcula o valor do ICMS devido e aplica sobre o valor do produto;
+var e_creditoICMS = 0, e_valorICMS:Number = 0, e_ICMSPagar:Number = 0;
+function eValIcms() {
+	if (e_creditoICMS>0 && e_creditoICMS<100) {
+		e_valorICMS = valorDoProduto*(e_creditoICMS/100);
+		e_ICMSPagar = (valorDoProduto*(0.17))-e_valorICMS;
+	} else if (e_creditoICMS == 0) {
+		e_valorICMS = 0;
+		e_ICMSPagar = 0;
+	} else {
+		e_creditoICMS = "Erro.";
+		return 0;
+	}
+}
+//Calcula o valor do ICMSST devido e aplica sobre o valor do produto;
+var e_MVA = 0, e_valorICMSST:Number = 0, e_ICMSSTPagar = 0;
+function eValIcmsSt() {
+	if (e_MVA>0 && e_MVA<100) {
+		e_valorICMSST = valorDoProduto*(e_MVA/100);
+		e_valorICMSST = ((Number(e_valorICMSST)+Number(valorDoProduto))*0.17)-e_valorICMS;
+		e_ICMSSTPagar = e_valorICMSST;
+	} else if (e_MVA == 0) {
+		e_valorICMSST = 0;
+		e_ICMSSTPagar = 0;
+	} else {
+		e_MVA = "Erro.";
+		return 0;
+	}
+}
+//Calcular outros valores e aplica sobre o valor do produto;
+var e_aliqDoFrete:Number = 0, e_fretePagar:Number = 0;
+var e_aliqDoSeguro:Number = 0, e_seguroPagar:Number = 0;
+var e_aliqDoDesconto:Number = 0, e_desconto:Number = 0;
+var e_outrasDespesas:Number = 0, e_outDespesas:Number = 0;
+var e_aliqDoIPI:Number = 0, e_aliqDoIPI:Number = 0;
+var aA:Number = 0, bB:Number = 0, cC:Number = 0;
+function eOutVal(aA, bB, cC) {
+	if (aA != 0) {
+		bB = (aA*valorDoProduto)/100;
+		if (cC == 0) {
+			e_precoReal += bB;
+		} else {
+			e_precoReal -= bB;
+		}
+	} else {
+		bB = 0;
+	}
+	aA = 0;
+	cC = 0;
+}
+//Aplica os resultados o obtidos sobre o valor do produto;
+function eValorTotal() {
+	if (e_ICMSSTPagar == 0) {
+		e_precoReal += Number(valorDoProduto)+Number(e_ICMSPagar);
+	} else {
+		e_precoReal += Number(valorDoProduto)+Number(e_ICMSSTPagar);
+	}
+}
+/* ============== FIM DOS CALCULOS DE IMPOSTOS NA ENTRADA DO PRODUTO ==============*/
+/* ============== INICIO CALCULOS DE PRÉ-VENDA DO PRODUTO ==============*/
+var aliqCalcVendaAVista:Number = 0, lucroLiqDesejado:Number = 0, vendaAVista:Number = 0, lucroReal = 0, descMax = 0;
+function valPreVenda() {
+	if (lucroLiqDesejado>0) {
+		lucroReal = 100-((e_precoReal*100)/(Number(e_precoReal)+Number(lucroLiqDesejado)));
+		aliqCalcVendaAVista = 1-(lucroReal/100);
+		vendaAVista = Number(e_precoReal)/Number(aliqCalcVendaAVista);
+	} else if (lucroReal>=0 && lucroReal<100) {
+		aliqCalcVendaAVista = 1-(lucroReal/100);
+		vendaAVista = Number(e_precoReal)/Number(aliqCalcVendaAVista);
+	} else {
+		lucroReal = "Erro.";
+		return 0;
+	}
+	if (descMax>=0 && descMax<100) {
+		vendaAVista = Number(vendaAVista)/(1-(Number(descMax)/100));
+	} else {
+		descMax = "Erro.";
+		return 0;
+	}
+}
+/* ============== FIM DOS CALCULOS DE PRÉ-VENDA DO PRODUTO ==============*/
+/* ============== INICIO DOS CALCULOS DE IMPOSTOS NA SAÍDA DO PRODUTO ==============*/
+var pv_aliqCalcVendaAVista:Number = 0, pv_DAS = 0, pv_COFINS:Number = 0, pv_PIS:Number = 0;
+var pv_CSLL1:Number = 0, pv_CSLL2:Number = 0;
+var pv_IRPJ1:Number = 0, pv_IRPJ2:Number = 0;
+var pv_despAdm:Number = 0, pv_descMax:Number = 0;
+var vendaAPrazo = 0;
+function pvCalcValor() {
+	if (pv_DAS>0 && pv_DAS<100) {
+		pv_aliqCalcVendasAVista = Number(pv_DAS)+Number(pv_despAdm);
+		vendaAVista = Number(vendaAVista)/(1-(Number(pv_aliqCalcVendasAVista)/100));
+	} else if (pv_DAS == 0) {
+		pv_aliqCalcVendasAVista = Number(pv_COFINS)+Number(pv_PIS)+((Number(pv_CSLL1)*Number(pv_CSLL2))/100)+((Number(pv_IRPJ1)*Number(pv_IRPJ2))/100)+Number(pv_despAdm);
+		vendaAVista = Number(vendaAVista)/(1-(Number(pv_aliqCalcVendasAVista)/100));
+	} else {
+		pv_DAS = "Erro.";
+		return 0;
+	}
+	vendaAPrazo = Number(vendaAVista)/(1-(Number(pv_descMax)/100));
+}
+/* ============== FIM DOS CALCULOS DE IMPOSTOS NA SAÍDA DO PRODUTO ==============*/
+/* ============== OUTRAS ATRIBUIÇÕES DE CONTROLE ==============*/
+_root.valorICMS.backgroundColor = 0xcccccc;
+_root.valorICMSST.backgroundColor = 0xcccccc;
+_root.precoReal.backgroundColor = 0xcccccc;
+_root.aVista.backgroundColor = 0xcccccc;
+_root.aPrazo.backgroundColor = 0xcccccc;
